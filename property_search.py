@@ -26,16 +26,8 @@ if __name__ == '__main__':
         'page_number': 1,
     }
 
-    columns = [
-        'displayable_address',
-        'outcode',
-        'price',
-        'num_bedrooms',
-        'property_type',
-        'description',
-        'latitude',
-        'longitude',
-    ]
+    # Faked limit
+    limit = 0
 
     table = None
     count = 0
@@ -47,20 +39,47 @@ if __name__ == '__main__':
         # Convert the incoming data to a dictionary
         json_data = req.json()
 
-        total_pages = math.ceil(json_data['result_count'] / params['page_size'])
+        limit = json_data['result_count'] if limit == 0 else min(limit, json_data['result_count'])
+
+        total_pages = math.ceil(limit / params['page_size'])
         print('Retrieved page %d of %d...' % (params['page_number'], total_pages))
 
         count += params['page_size']
         params['page_number'] += 1
 
+        # Filter to North West of London only
         sub_table = pd.DataFrame(json_data['listing'])
+        sub_table = sub_table[sub_table['outcode'].str.contains('NW')]
+
         if table is not None:
             table = table.append(sub_table, ignore_index=True)
         else:
             table = sub_table
 
-        if count >= json_data['result_count']:
+        if count >= limit:
             break
+
+    # Calculate price per month
+    table['price'] = table['price'].astype(int)
+    table['pcm'] = table['price'] * 52 / 12
+
+    columns = [
+        'details_url',
+        'displayable_address',
+        'outcode',
+        'price',
+        'pcm',
+        'num_bedrooms',
+        'num_bathrooms',
+        'num_floors',
+        'property_type',
+        'agent_name',
+        'agent_phone',
+        'description',
+        'latitude',
+        'longitude',
+        'image_url',
+    ]
 
     print('Saving the data to secondary storage')
 
