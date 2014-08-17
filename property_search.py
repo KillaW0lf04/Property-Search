@@ -65,6 +65,6 @@ if __name__ == '__main__':
     print('Saving the data to secondary storage')
 
     from pandas import ExcelWriter
-    writer = ExcelWriter('/home/michaela/zoopla.xls')
+    writer = ExcelWriter('zoopla.xls')
     table[columns].to_excel(writer)
     writer.close()
