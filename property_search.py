@@ -1,4 +1,4 @@
-from __future__ import division
+from __future__ import division, print_function
 
 import math
 import requests
@@ -35,6 +35,9 @@ if __name__ == '__main__':
     while True:
         # http://developer.zoopla.com/docs/Property_listings
         req = requests.get('http://api.zoopla.co.uk/api/v1/property_listings.json', params=params)
+
+        if not req.ok:
+            raise ValueError(req.text)
 
         # Convert the incoming data to a dictionary
         json_data = req.json()
