@@ -66,6 +66,9 @@ if __name__ == '__main__':
     table['price'] = table['price'].astype(int)
     table['pcm'] = table['price'] * 52 / 12
 
+    # Set the listing id as the index
+    table.set_index('listing_id', inplace=True)
+
     columns = [
         'details_url',
         'displayable_address',
